@@ -49,11 +49,10 @@ Browser A                 Django (Port 8000)                 Browser B
 
 ```
 
-### Activate the virtual environment:
 
-### Installation
+# Installation
 
-##1. Backend Setup (Django) 
+## 1. Backend Setup (Django) 
 
 ### Navigate to the backend directory
 cd backend
@@ -63,6 +62,7 @@ cd backend
 python -m venv venv
 ```
 ## Activate the virtual environment:
+
 ### On Mac/Linux:
 ```
 source venv/bin/activate
@@ -91,7 +91,7 @@ python manage.py runserver
 http://localhost:8000
 ```
 
-##2. Frontend Setup (Next.js)
+## 2.Frontend Setup (Next.js)
 
 ### Open a new terminal and navigate to the frontend directory
 ``
@@ -106,7 +106,24 @@ npm install
   npm run dev
 ```
 ### Frontend will be available at:
-``
+```
   http://localhost:3000
 ```
 
+# Project Structure
+```
+local-chat-app/
+├── backend/
+│   ├── chat/
+│   │   ├── consumers.py
+│   │   └── routing.py
+│   └── backend/
+│       ├── settings.py
+│       └── asgi.py
+├── frontend/
+│   ├── components/
+│   │   └── ChatWindow.tsx
+│   └── app/
+│       └── page.tsx
+└── .gitignore
+```
