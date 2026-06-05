@@ -55,8 +55,9 @@ Browser A                 Django (Port 8000)                 Browser B
 ## 1. Backend Setup (Django) 
 
 ### Navigate to the backend directory
+```
 cd backend
-
+```
 ### Create a virtual environment
 ```
 python -m venv venv
