@@ -6,7 +6,11 @@ A real-time chat application that runs entirely on your local network using WebS
 
 **Tech Stack:** Django Channels, Next.js, TypeScript, Tailwind CSS
 
+<img width="1920" height="1080" alt="Screenshot 2026-06-06 000952" src="https://github.com/user-attachments/assets/518b0246-5352-485f-b124-58dd69ca5326" />
 
+
+
+   
 ## Overview
 
 This project demonstrates a full-stack WebSocket-based chat system running locally.
