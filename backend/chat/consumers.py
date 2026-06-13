@@ -1,8 +1,16 @@
+# chat/consumers.py
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        # --- NEW AUTHENTICATION CHECK ---
+        if self.scope["user"].is_anonymous:
+            # Reject the WebSocket connection
+            await self.close()
+            return
+        # ---------------------------------
+
         self.room_name = "main_chat"
         self.room_group_name = f"chat_{self.room_name}"
 
@@ -21,7 +29,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
-        username = text_data_json.get('username', 'Anonymous')
+        username = text_data_json.get('username', self.scope["user"].username)
 
         await self.channel_layer.group_send(
             self.room_group_name,
@@ -33,10 +41,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def chat_message(self, event):
-        message = event['message']
-        username = event['username']
-
         await self.send(text_data=json.dumps({
-            'message': message,
-            'username': username
+            'message': event['message'],
+            'username': event['username']
         }))
