@@ -1,0 +1,31 @@
+🎯 For each feature, here’s the minimal prompt
+1. Welcome message on connect
+text
+Django Channels AsyncWebsocketConsumer. Add welcome message when user connects. 
+Show modified connect() and new system_message() method. 
+Frontend: handle message type 'system'. 
+Only code.
+2. Store messages in DB and show logs
+text
+Django models: create ChatMessage with user FK, message text, timestamp, room name. 
+In consumers.py receive(), save message asynchronously using sync_to_async. 
+On WebSocket connect, send last 50 messages to client (type 'history'). 
+Only code.
+3. Show online members
+text
+In consumers.py, maintain a set of online usernames (module-level). 
+Add to set on connect, remove on disconnect. 
+Broadcast updated list to group when set changes. 
+Frontend: display list. Only code.
+4. Seen status (message read receipts)
+text
+Add to models: Message.seen_by (ManyToMany to User). 
+When client views a message, send API call POST /api/mark_seen/ with message_id. 
+In consumers.py, when seen_by updated, broadcast 'seen' event to all clients. 
+Only code, no explanation.
+5. User approval system (admin must accept new users)
+text
+Django: create PendingUser model (username, hashed password, email, approved=False). 
+Registration endpoint: POST /api/register/ → save to PendingUser. 
+Admin approval endpoint: POST /api/approve_user/<id>/ → create real User, delete pending. 
+Optional: notify user via email. Only code.
