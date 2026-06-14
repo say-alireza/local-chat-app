@@ -11,13 +11,13 @@ Django models: create ChatMessage with user FK, message text, timestamp, room na
 In consumers.py receive(), save message asynchronously using sync_to_async. 
 On WebSocket connect, send last 50 messages to client (type 'history'). 
 Only code.
-3. Show online members
+3. Show online members ---Done
 text
 In consumers.py, maintain a set of online usernames (module-level). 
 Add to set on connect, remove on disconnect. 
 Broadcast updated list to group when set changes. 
 Frontend: display list. Only code.
-4. Seen status (message read receipts)
+4. Seen status (message read receipts) -- done (but it does not show who reads it )
 text
 Add to models: Message.seen_by (ManyToMany to User). 
 When client views a message, send API call POST /api/mark_seen/ with message_id. 

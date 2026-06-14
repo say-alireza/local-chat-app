@@ -7,6 +7,7 @@ class ChatMessage(models.Model):
     message = models.TextField()
     room = models.CharField(max_length=255)
     timestamp = models.DateTimeField(auto_now_add=True)
+    seen_by = models.ManyToManyField(User, related_name="seen_messages", blank=True)
 
     class Meta:
         ordering = ["-timestamp"]

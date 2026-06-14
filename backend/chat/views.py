@@ -1,14 +1,15 @@
 # chat/views.py
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
 
-@csrf_exempt  # Only for development; in production use proper CSRF tokens
+
+@csrf_exempt
 @require_http_methods(["POST"])
 def login_view(request):
-    """Log in a user and return success/error JSON."""
     try:
         data = json.loads(request.body)
         username = data.get('username')
@@ -23,15 +24,15 @@ def login_view(request):
     else:
         return JsonResponse({'error': 'Invalid credentials'}, status=401)
 
+
 @require_http_methods(["POST"])
 def logout_view(request):
-    """Log out the current user."""
     logout(request)
     return JsonResponse({'success': True})
 
+
 @require_http_methods(["GET"])
 def user_view(request):
-    """Return current user info (used by frontend to check auth status)."""
     if request.user.is_authenticated:
         return JsonResponse({
             'is_authenticated': True,
@@ -39,3 +40,41 @@ def user_view(request):
         })
     else:
         return JsonResponse({'is_authenticated': False})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def mark_seen_view(request):
+    try:
+        data = json.loads(request.body)
+        message_id = data.get('message_id')
+        username = data.get('username')
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    if not message_id or not username:
+        return JsonResponse({'error': 'message_id and username required'}, status=400)
+
+    try:
+        from .models import ChatMessage
+        from channels.layers import get_channel_layer
+        from asgiref.sync import async_to_sync
+
+        msg = ChatMessage.objects.get(pk=message_id)
+        user, _ = User.objects.get_or_create(username=username, defaults={"password": "!"})
+        msg.seen_by.add(user)
+        seen_by_list = list(msg.seen_by.values_list("username", flat=True))
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"chat_main_chat",
+            {
+                "type": "seen_event",
+                "message_id": message_id,
+                "seen_by": seen_by_list,
+            },
+        )
+
+        return JsonResponse({'success': True, 'seen_by': seen_by_list, 'message_id': message_id})
+    except ChatMessage.DoesNotExist:
+        return JsonResponse({'error': 'Message not found'}, status=404)

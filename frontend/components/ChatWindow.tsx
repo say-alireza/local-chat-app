@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './ChatWindow.module.css';
 
 interface Message {
+  id?: number;
   type: 'chat' | 'system';
   username: string;
   message: string;
   timestamp: Date;
+  seenBy: string[];
 }
 
 interface ChatWindowProps {
@@ -24,6 +26,27 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
   const [isUsernameSet, setIsUsernameSet] = useState<boolean>(false);
   const wsRef = useRef<WebSocket | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
+  const seenSentRef = useRef<Set<number>>(new Set());
+
+  const markSeen = useCallback(async (msgId: number) => {
+    if (seenSentRef.current.has(msgId)) return;
+    seenSentRef.current.add(msgId);
+    try {
+      const resp = await fetch('http://localhost:8000/api/mark_seen/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message_id: msgId, username }),
+      });
+      const data = await resp.json();
+      if (data.success) {
+        setMessages(prev => prev.map(m =>
+          m.id === msgId ? { ...m, seenBy: data.seen_by } : m
+        ));
+      }
+    } catch {
+      seenSentRef.current.delete(msgId);
+    }
+  }, [username]);
 
   useEffect(() => {
     if (!isUsernameSet) return;
@@ -41,11 +64,30 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
         setOnlineMembers(data.users);
         return;
       }
+      if (data.type === 'seen') {
+        setMessages(prev => prev.map(m =>
+          m.id === data.message_id ? { ...m, seenBy: data.seen_by } : m
+        ));
+        return;
+      }
+      if (data.type === 'history') {
+        setMessages(data.messages.map((msg: any) => ({
+          id: msg.id,
+          type: 'chat',
+          username: msg.username,
+          message: msg.message,
+          timestamp: new Date(msg.timestamp),
+          seenBy: msg.seen_by || [],
+        })));
+        return;
+      }
       setMessages(prev => [...prev, {
+        id: data.id,
         type: data.type === 'system' ? 'system' : 'chat',
         username: data.username || '',
         message: data.message,
-        timestamp: new Date()
+        timestamp: new Date(),
+        seenBy: [],
       }]);
     };
 
@@ -65,10 +107,15 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
   }, [isUsernameSet, username]);
 
   useEffect(() => {
-    if (feedRef.current) {
-      feedRef.current.scrollTop = feedRef.current.scrollHeight;
-    }
-  }, [messages]);
+    if (!feedRef.current) return;
+    feedRef.current.scrollTop = feedRef.current.scrollHeight;
+
+    const visible = feedRef.current.querySelectorAll('[data-msg-id]');
+    visible.forEach(el => {
+      const id = parseInt(el.getAttribute('data-msg-id') || '0', 10);
+      if (id) markSeen(id);
+    });
+  }, [messages, markSeen]);
 
   const sendMessage = () => {
     if (input.trim() && wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -139,6 +186,7 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
             ) : (
               <div
                 key={idx}
+                data-msg-id={msg.id}
                 className={`${styles.messageRow} ${msg.username === username ? styles.rowSelf : styles.rowOther}`}
               >
                 <div className={`${styles.bubble} ${msg.username === username ? styles.bubbleSelf : styles.bubbleOther}`}>
@@ -146,8 +194,18 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
                     <div className={styles.senderName}>{msg.username}</div>
                   )}
                   <div className={styles.messageText}>{msg.message}</div>
-                  <div className={styles.messageTime}>
-                    {msg.timestamp.toLocaleTimeString()}
+                  <div className={styles.messageMeta}>
+                    <span className={styles.messageTime}>
+                      {msg.timestamp.toLocaleTimeString()}
+                    </span>
+                    {msg.username === username && msg.id && (
+                      <span className={styles.seenStatus}>
+                        {msg.seenBy.length > 0
+                          ? `✓✓ ${msg.seenBy.filter(u => u !== username).length > 0 ? 'Read' : 'Sent'}`
+                          : '✓'
+                        }
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

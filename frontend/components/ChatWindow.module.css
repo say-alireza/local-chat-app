@@ -193,11 +193,27 @@
   word-break: break-word;
 }
 
+.messageMeta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 4px;
+}
+
 .messageTime {
   font-size: 11px;
-  margin-top: 4px;
   opacity: 0.6;
-  text-align: right;
+}
+
+.seenStatus {
+  font-size: 11px;
+  opacity: 0.7;
+  color: #60a5fa;
+}
+
+.bubbleSelf .seenStatus {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .inputBar {

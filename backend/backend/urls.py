@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/login/', views.login_view, name='login'),
     path('api/logout/', views.logout_view, name='logout'),
     path('api/user/', views.user_view, name='user'),
+    path('api/mark_seen/', views.mark_seen_view, name='mark_seen'),
 ]

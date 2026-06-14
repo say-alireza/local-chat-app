@@ -75,12 +75,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = data["message"]
 
         user = await self._get_or_create_user(self.username)
-        await self._save_message(user, self.room_name, message)
+        msg_id = await self._save_message(user, self.room_name, message)
 
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 "type": "chat_message",
+                "id": msg_id,
                 "message": message,
                 "username": self.username,
             },
@@ -89,6 +90,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
             "type": "chat",
+            "id": event["id"],
             "message": event["message"],
             "username": event["username"],
         }))
@@ -105,6 +107,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "users": event["users"],
         }))
 
+    async def seen_event(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "seen",
+            "message_id": event["message_id"],
+            "seen_by": event["seen_by"],
+        }))
+
     @sync_to_async
     def _get_or_create_user(self, username):
         user, _ = User.objects.get_or_create(
@@ -115,20 +124,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @sync_to_async
     def _save_message(self, user, room, message):
-        ChatMessage.objects.create(
+        msg = ChatMessage.objects.create(
             user=user,
             message=message,
             room=room,
         )
+        return msg.id
 
     @sync_to_async
     def _get_history(self, room):
-        messages = ChatMessage.objects.filter(room=room).select_related("user")[:50]
+        messages = ChatMessage.objects.filter(room=room).select_related("user").prefetch_related("seen_by")[:50]
         return [
             {
+                "id": msg.id,
                 "username": msg.user.username,
                 "message": msg.message,
                 "timestamp": msg.timestamp.isoformat(),
+                "seen_by": list(msg.seen_by.values_list("username", flat=True)),
             }
             for msg in reversed(list(messages))
         ]
