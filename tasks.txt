@@ -1,11 +1,11 @@
 🎯 For each feature, here’s the minimal prompt
-1. Welcome message on connect
+1. Welcome message on connect  --- Done
 text
 Django Channels AsyncWebsocketConsumer. Add welcome message when user connects. 
 Show modified connect() and new system_message() method. 
 Frontend: handle message type 'system'. 
 Only code.
-2. Store messages in DB and show logs
+2. Store messages in DB and show logs  --- Done
 text
 Django models: create ChatMessage with user FK, message text, timestamp, room name. 
 In consumers.py receive(), save message asynchronously using sync_to_async. 

@@ -17,6 +17,7 @@ interface ChatWindowProps {
 
 export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [onlineMembers, setOnlineMembers] = useState<string[]>([]);
   const [input, setInput] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -36,6 +37,10 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
 
     ws.onmessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
+      if (data.type === 'online_users') {
+        setOnlineMembers(data.users);
+        return;
+      }
       setMessages(prev => [...prev, {
         type: data.type === 'system' ? 'system' : 'chat',
         username: data.username || '',
@@ -121,32 +126,47 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
         </div>
       </header>
 
-      <main className={styles.messageFeed} ref={feedRef}>
-        {messages.length === 0 && (
-          <div className={styles.emptyState}>No messages yet. Start the conversation!</div>
-        )}
-        {messages.map((msg, idx) => (
-          msg.type === 'system' ? (
-            <div key={idx} className={styles.systemMessage}>
-              {msg.message}
-            </div>
-          ) : (
-            <div
-              key={idx}
-              className={`${styles.messageRow} ${msg.username === username ? styles.rowSelf : styles.rowOther}`}
-            >
-              <div className={`${styles.bubble} ${msg.username === username ? styles.bubbleSelf : styles.bubbleOther}`}>
-                {msg.username !== username && (
-                  <div className={styles.senderName}>{msg.username}</div>
-                )}
-                <div className={styles.messageText}>{msg.message}</div>
-                <div className={styles.messageTime}>
-                  {msg.timestamp.toLocaleTimeString()}
+      <main className={styles.mainContent}>
+        <div className={styles.messageFeed} ref={feedRef}>
+          {messages.length === 0 && (
+            <div className={styles.emptyState}>No messages yet. Start the conversation!</div>
+          )}
+          {messages.map((msg, idx) => (
+            msg.type === 'system' ? (
+              <div key={idx} className={styles.systemMessage}>
+                {msg.message}
+              </div>
+            ) : (
+              <div
+                key={idx}
+                className={`${styles.messageRow} ${msg.username === username ? styles.rowSelf : styles.rowOther}`}
+              >
+                <div className={`${styles.bubble} ${msg.username === username ? styles.bubbleSelf : styles.bubbleOther}`}>
+                  {msg.username !== username && (
+                    <div className={styles.senderName}>{msg.username}</div>
+                  )}
+                  <div className={styles.messageText}>{msg.message}</div>
+                  <div className={styles.messageTime}>
+                    {msg.timestamp.toLocaleTimeString()}
+                  </div>
                 </div>
               </div>
-            </div>
-          )
-        ))}
+            )
+          ))}
+        </div>
+        <aside className={styles.onlinePanel}>
+          <div className={styles.onlineHeader}>
+            Online ({onlineMembers.length})
+          </div>
+          <ul className={styles.onlineList}>
+            {onlineMembers.map((user) => (
+              <li key={user} className={styles.onlineItem}>
+                <span className={styles.onlineDot} />
+                {user}
+              </li>
+            ))}
+          </ul>
+        </aside>
       </main>
 
       <footer className={styles.inputBar}>

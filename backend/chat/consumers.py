@@ -6,6 +6,9 @@ from asgiref.sync import sync_to_async
 from .models import ChatMessage
 
 
+online_users: set[str] = set()
+
+
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = "main_chat"
@@ -25,6 +28,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
+        online_users.add(self.username)
+        await self._broadcast_online_users()
+
         history = await self._get_history(self.room_name)
         await self.send(text_data=json.dumps({
             "type": "history",
@@ -40,6 +46,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def disconnect(self, close_code):
+        online_users.discard(self.username)
+        await self._broadcast_online_users()
+
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -50,6 +59,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name,
+        )
+
+    async def _broadcast_online_users(self):
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                "type": "online_users_message",
+                "users": sorted(online_users),
+            },
         )
 
     async def receive(self, text_data):
@@ -79,6 +97,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             "type": "system",
             "message": event["message"],
+        }))
+
+    async def online_users_message(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "online_users",
+            "users": event["users"],
         }))
 
     @sync_to_async
