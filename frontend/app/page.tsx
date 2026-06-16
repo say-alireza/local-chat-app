@@ -1,14 +1,15 @@
+// app/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
-import ChatWindow from '@/components/ChatWindow';
+import ChatWindow from '@/components/ChatWindow';   // <-- this points to index.tsx
+import { useState } from 'react';
 
 export default function Home() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
-  return <ChatWindow theme={theme} onToggleTheme={() => setTheme(t => t === 'light' ? 'dark' : 'light')} />;
+  return <ChatWindow theme={theme} onToggleTheme={toggleTheme} />;
 }
