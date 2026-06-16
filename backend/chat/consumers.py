@@ -186,6 +186,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "message": msg.message,
                 "timestamp": msg.timestamp.isoformat(),
                 "seen_by": list(msg.seen_by.values_list("username", flat=True)),
+                "reactions": msg.reactions or {},
             }
             for msg in reversed(list(messages))
         ]

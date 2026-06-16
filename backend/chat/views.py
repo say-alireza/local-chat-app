@@ -80,41 +80,53 @@ def mark_seen_view(request):
         return JsonResponse({'error': 'Message not found'}, status=404)
 
 
-
 @csrf_exempt
 @require_http_methods(["POST"])
-def mark_seen_view(request):
+def toggle_reaction(request):
     try:
         data = json.loads(request.body)
         message_id = data.get('message_id')
+        emoji = data.get('emoji')
         username = data.get('username')
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-    if not message_id or not username:
-        return JsonResponse({'error': 'message_id and username required'}, status=400)
+    if not message_id or not emoji:
+        return JsonResponse({'error': 'message_id and emoji required'}, status=400)
 
     try:
         from .models import ChatMessage
         from channels.layers import get_channel_layer
         from asgiref.sync import async_to_sync
 
-        msg = ChatMessage.objects.get(pk=message_id)  # Find the message
-        user, _ = User.objects.get_or_create(username=username, defaults={"password": "!"})  # Get or create user
-        msg.seen_by.add(user)  # Add user to seen_by list
-        seen_by_list = list(msg.seen_by.values_list("username", flat=True))  # Get list of usernames
+        msg = ChatMessage.objects.get(pk=message_id)
+        reactions = msg.reactions or {}
 
-        # Broadcast to all WebSocket clients that this message was seen
+        if emoji in reactions:
+            if username in reactions[emoji]:
+                reactions[emoji].remove(username)
+                if not reactions[emoji]:
+                    del reactions[emoji]
+            else:
+                reactions[emoji].append(username)
+        else:
+            reactions[emoji] = [username]
+
+        msg.reactions = reactions
+        msg.save()
+
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             f"chat_main_chat",
             {
-                "type": "seen_event",
+                "type": "reaction_update",
                 "message_id": message_id,
-                "seen_by": seen_by_list,
+                "emoji": emoji,
+                "username": username,
+                "reactions": reactions,
             },
         )
 
-        return JsonResponse({'success': True, 'seen_by': seen_by_list, 'message_id': message_id})
+        return JsonResponse({'success': True, 'reactions': reactions, 'message_id': message_id})
     except ChatMessage.DoesNotExist:
         return JsonResponse({'error': 'Message not found'}, status=404)

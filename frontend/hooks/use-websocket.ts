@@ -17,7 +17,7 @@ export function useWebSocket({
   onOnlineUsers,
   onHistory,
   onSeen,
-  onReactionUpdate,  // ← ADD THIS
+  onReactionUpdate,
 }: UseWebSocketOptions) {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
@@ -29,6 +29,17 @@ export function useWebSocket({
     }
     return false;
   }, [username]);
+
+  const sendReaction = useCallback((messageId: number, emoji: string) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      const payload = { type: 'reaction', message_id: messageId, emoji };
+      console.log('[WS] sending reaction:', payload);
+      wsRef.current.send(JSON.stringify(payload));
+      return true;
+    }
+    console.warn('[WS] sendReaction failed — socket not open');
+    return false;
+  }, []);
 
   useEffect(() => {
     const ws = new WebSocket(`wss://localhost:8000/ws/chat/?username=${encodeURIComponent(username)}`);
@@ -54,6 +65,7 @@ export function useWebSocket({
           })));
           break;
         case 'reaction_update':
+          console.log('[WS] reaction_update received:', data);
           onReactionUpdate(data.message_id, data.emoji, data.username, data.reactions);
           break;
         default:
@@ -73,5 +85,5 @@ export function useWebSocket({
     };
   }, [username, onMessage, onOnlineUsers, onHistory, onSeen, onReactionUpdate]); // ← ADD onReactionUpdate here
 
-  return { isConnected, sendMessage };
+  return { isConnected, sendMessage, sendReaction };
 }

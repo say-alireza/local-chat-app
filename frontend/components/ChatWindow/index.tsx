@@ -45,44 +45,31 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
   // HANDLE REACTION UPDATE FROM WEBSOCKET
   // =============================================
   const handleReactionUpdate = useCallback((messageId: number, emoji: string, username: string, reactions: Record<string, string[]>) => {
+    console.log('[ChatWindow] handleReactionUpdate:', { messageId, emoji, username, reactions });
     setMessages(prev => prev.map(m =>
       m.id === messageId ? { ...m, reactions } : m
     ));
   }, []);
 
   // =============================================
-  // HANDLE REACTION CLICK (SEND TO API)
-  // =============================================
-  const handleReaction = useCallback(async (messageId: number, emoji: string) => {
-    try {
-      const response = await fetch('https://localhost:8000/api/toggle_reaction/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ message_id: messageId, emoji }),
-      });
-      const data = await response.json();
-      if (data.success) {
-        setMessages(prev => prev.map(m =>
-          m.id === messageId ? { ...m, reactions: data.reactions } : m
-        ));
-      }
-    } catch (error) {
-      console.error('Failed to toggle reaction:', error);
-    }
-  }, []);
-
-  // =============================================
   // USE WEBSOCKET – WITH onReactionUpdate
   // =============================================
-  const { isConnected, sendMessage } = useWebSocket({
+  const { isConnected, sendMessage, sendReaction } = useWebSocket({
     username,
     onMessage: handleMessage,
     onOnlineUsers: handleOnlineUsers,
     onHistory: handleHistory,
     onSeen: handleSeen,
-    onReactionUpdate: handleReactionUpdate, // ← ADD THIS
+    onReactionUpdate: handleReactionUpdate,
   });
+
+  // =============================================
+  // HANDLE REACTION CLICK (SEND VIA WEBSOCKET)
+  // =============================================
+  const handleReaction = useCallback((messageId: number, emoji: string) => {
+    console.log('[ChatWindow] handleReaction:', { messageId, emoji });
+    sendReaction(messageId, emoji);
+  }, [sendReaction]);
 
   const handleMessageVisible = useCallback((id: number) => {
     markSeen(id);
