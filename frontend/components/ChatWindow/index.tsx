@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useWebSocket } from '@/hooks/useWebSocket';
+import { useWebSocket } from '@/hooks/use-websocket';
 import { useSeenStatus } from '@/hooks/useSeenStatus';
 import { Message } from '@/types';
 import { MessageFeed } from './MessageFeed';
