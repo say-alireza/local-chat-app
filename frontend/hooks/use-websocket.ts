@@ -8,6 +8,7 @@ interface UseWebSocketOptions {
   onOnlineUsers: (users: string[]) => void;
   onHistory: (messages: Message[]) => void;
   onSeen: (messageId: number, seenBy: string[]) => void;
+  onReactionUpdate: (messageId: number, emoji: string, username: string, reactions: Record<string, string[]>) => void;
 }
 
 export function useWebSocket({
@@ -16,6 +17,7 @@ export function useWebSocket({
   onOnlineUsers,
   onHistory,
   onSeen,
+  onReactionUpdate,  // ← ADD THIS
 }: UseWebSocketOptions) {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
@@ -51,6 +53,9 @@ export function useWebSocket({
             timestamp: new Date(msg.timestamp),
           })));
           break;
+        case 'reaction_update':
+          onReactionUpdate(data.message_id, data.emoji, data.username, data.reactions);
+          break;
         default:
           onMessage({
             id: data.id,
@@ -66,7 +71,7 @@ export function useWebSocket({
     return () => {
       ws.close();
     };
-  }, [username, onMessage, onOnlineUsers, onHistory, onSeen]);
+  }, [username, onMessage, onOnlineUsers, onHistory, onSeen, onReactionUpdate]); // ← ADD onReactionUpdate here
 
   return { isConnected, sendMessage };
 }

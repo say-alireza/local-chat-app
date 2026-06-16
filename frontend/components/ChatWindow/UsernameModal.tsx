@@ -1,4 +1,3 @@
-// components/ChatWindow/UsernameModal.tsx
 import { useState } from 'react';
 import styles from './ChatWindow.module.css';
 

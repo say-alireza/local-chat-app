@@ -1,4 +1,3 @@
-// components/ChatWindow/index.tsx
 'use client';
 
 import { useState, useCallback } from 'react';
@@ -42,12 +41,47 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
     ));
   }, []);
 
+  // =============================================
+  // HANDLE REACTION UPDATE FROM WEBSOCKET
+  // =============================================
+  const handleReactionUpdate = useCallback((messageId: number, emoji: string, username: string, reactions: Record<string, string[]>) => {
+    setMessages(prev => prev.map(m =>
+      m.id === messageId ? { ...m, reactions } : m
+    ));
+  }, []);
+
+  // =============================================
+  // HANDLE REACTION CLICK (SEND TO API)
+  // =============================================
+  const handleReaction = useCallback(async (messageId: number, emoji: string) => {
+    try {
+      const response = await fetch('https://localhost:8000/api/toggle_reaction/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ message_id: messageId, emoji }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessages(prev => prev.map(m =>
+          m.id === messageId ? { ...m, reactions: data.reactions } : m
+        ));
+      }
+    } catch (error) {
+      console.error('Failed to toggle reaction:', error);
+    }
+  }, []);
+
+  // =============================================
+  // USE WEBSOCKET – WITH onReactionUpdate
+  // =============================================
   const { isConnected, sendMessage } = useWebSocket({
     username,
     onMessage: handleMessage,
     onOnlineUsers: handleOnlineUsers,
     onHistory: handleHistory,
     onSeen: handleSeen,
+    onReactionUpdate: handleReactionUpdate, // ← ADD THIS
   });
 
   const handleMessageVisible = useCallback((id: number) => {
@@ -63,8 +97,11 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
     return <UsernameModal onUsernameSet={handleUsernameSet} />;
   }
 
+  // =============================================
+  // RETURN – WITH DARK THEME CLASS
+  // =============================================
   return (
-    <div className={styles.app}>
+    <div className={`${styles.app} ${theme === 'dark' ? styles.dark : ''}`}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <h1>Local Chat</h1>
@@ -84,6 +121,7 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
           messages={messages}
           username={username}
           onMessageVisible={handleMessageVisible}
+          onReaction={handleReaction}
         />
         <OnlinePanel users={onlineMembers} />
       </main>

@@ -24,9 +24,12 @@ When client views a message, send API call POST /api/mark_seen/ with message_id.
 In consumers.py, when seen_by updated, broadcast 'seen' event to all clients. 
 Only code, no explanation.
 
+-- fixing darktheme  + button (Done)
 
 5 -- adding Tsl to make it encripted (done)
-5.1 -- showing technologies that the message is encripted 
+
+5.1 -- showing technologies that the message is encripted (done) 
+op(show it withou ts )
 6 --- adding emojies reaction for the chat messages 
 
 5. User approval system (admin must accept new users)

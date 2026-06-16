@@ -1,5 +1,6 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async  # ← ADD THIS
 from django.contrib.auth.models import User
 from django.utils import timezone
 from asgiref.sync import sync_to_async
@@ -70,8 +71,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
             },
         )
 
+    # =============================================
+    # RECEIVE METHOD – FIXED INDENTATION
+    # =============================================
     async def receive(self, text_data):
-        data = json.loads(text_data)
+        data = json.loads(text_data)  # ← FIXED: 4 spaces indentation
+
+        # Check if this is a reaction message
+        if data.get('type') == 'reaction':
+            message_id = data.get('message_id')
+            emoji = data.get('emoji')
+            
+            if not message_id or not emoji:
+                return  # Ignore invalid reactions
+
+            updated_reactions = await self._update_reaction(message_id, emoji, self.username)
+
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "reaction_update",
+                    "message_id": message_id,
+                    "emoji": emoji,
+                    "username": self.username,
+                    "reactions": updated_reactions,
+                }
+            )
+            return  # Don't process as regular message
+
+        # Regular chat message
         message = data["message"]
 
         user = await self._get_or_create_user(self.username)
@@ -86,6 +114,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "username": self.username,
             },
         )
+
+    # =============================================
+    # EVENT HANDLERS
+    # =============================================
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
@@ -113,6 +145,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "message_id": event["message_id"],
             "seen_by": event["seen_by"],
         }))
+
+    async def reaction_update(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "reaction_update",
+            "message_id": event["message_id"],
+            "emoji": event["emoji"],
+            "username": event["username"],
+            "reactions": event["reactions"],
+        }))
+
+    # =============================================
+    # DATABASE HELPERS
+    # =============================================
 
     @sync_to_async
     def _get_or_create_user(self, username):
@@ -144,3 +189,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
             for msg in reversed(list(messages))
         ]
+
+    @database_sync_to_async  # ← NOW THIS WORKS (imported properly)
+    def _update_reaction(self, message_id, emoji, username):
+        """Update reaction in database and return updated reactions dict."""
+        try:
+            msg = ChatMessage.objects.get(id=message_id)
+            reactions = msg.reactions or {}
+
+            # Toggle reaction
+            if emoji in reactions:
+                if username in reactions[emoji]:
+                    reactions[emoji].remove(username)
+                    if not reactions[emoji]:
+                        del reactions[emoji]
+                else:
+                    reactions[emoji].append(username)
+            else:
+                reactions[emoji] = [username]
+
+            msg.reactions = reactions
+            msg.save()
+            return reactions
+        except ChatMessage.DoesNotExist:
+            return {}

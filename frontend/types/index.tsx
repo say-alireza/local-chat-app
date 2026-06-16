@@ -5,6 +5,7 @@ export interface Message {
   message: string;
   timestamp: Date;
   seenBy: string[];
+  reactions?: Record<string, string[]>;
 }
 
 export interface ChatState {

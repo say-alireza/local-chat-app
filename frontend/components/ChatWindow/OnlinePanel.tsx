@@ -1,4 +1,3 @@
-// components/ChatWindow/OnlinePanel.tsx
 import styles from './ChatWindow.module.css';
 
 interface Props {

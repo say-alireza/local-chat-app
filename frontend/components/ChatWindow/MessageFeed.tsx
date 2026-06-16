@@ -8,9 +8,15 @@ interface Props {
   messages: Message[];
   username: string;
   onMessageVisible: (id: number) => void;
+  onReaction: (messageId: number, emoji: string) => void;
 }
 
-export function MessageFeed({ messages, username, onMessageVisible }: Props) {
+export function MessageFeed({ 
+  messages, 
+  username, 
+  onMessageVisible, 
+  onReaction 
+}: Props) {
   const feedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,6 +44,7 @@ export function MessageFeed({ messages, username, onMessageVisible }: Props) {
             message={msg}
             isSelf={msg.username === username}
             username={username}
+            onReaction={onReaction} 
           />
         )
       )}
