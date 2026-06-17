@@ -42,7 +42,7 @@ export function useWebSocket({
   }, []);
 
   useEffect(() => {
-    const ws = new WebSocket(`wss://localhost:8000/ws/chat/?username=${encodeURIComponent(username)}`);
+    const ws = new WebSocket(`ws://localhost:8000/ws/chat/?username=${encodeURIComponent(username)}`);
     wsRef.current = ws;
 
     ws.onopen = () => setIsConnected(true);

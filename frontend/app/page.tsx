@@ -17,4 +17,4 @@ export default function Home() {
   };
 
   return <ChatWindow theme={theme} onToggleTheme={toggleTheme} />;
-}
+}   

@@ -380,6 +380,28 @@
   background-color: var(--color-primary-600);
 }
 
+.primaryBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pendingDots {
+  color: var(--color-primary-500);
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.errorText {
+  color: #ef4444;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 .loginOverlay {
   min-height: 100vh;
   display: flex;

@@ -82,6 +82,47 @@ def mark_seen_view(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+def request_join(request):
+    try:
+        data = json.loads(request.body)
+        username = data.get("username", "").strip()
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    if not username:
+        return JsonResponse({"error": "Username required"}, status=400)
+
+    from django.contrib.auth.models import User
+    from .models import PendingUser
+
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({"error": "Username already taken"}, status=400)
+
+    pending, created = PendingUser.objects.get_or_create(username=username)
+    if created:
+        return JsonResponse({"status": "pending"})
+    return JsonResponse({"status": "pending"})
+
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def check_approval(request):
+    username = request.GET.get("username", "").strip()
+    if not username:
+        return JsonResponse({"error": "Username required"}, status=400)
+
+    from django.contrib.auth.models import User
+    from .models import PendingUser
+
+    if User.objects.filter(username=username, is_active=True).exists():
+        return JsonResponse({"status": "approved"})
+    if PendingUser.objects.filter(username=username).exists():
+        return JsonResponse({"status": "pending"})
+    return JsonResponse({"status": "not_found"})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
 def toggle_reaction(request):
     try:
         data = json.loads(request.body)

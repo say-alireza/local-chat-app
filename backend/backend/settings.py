@@ -31,7 +31,9 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders',          
+    'colorfield',
+    'admin_interface',
+    'corsheaders',
     'daphne',
     'channels',
     'django.contrib.admin',
@@ -119,7 +121,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 ASGI_APPLICATION = 'backend.asgi.application'
 
@@ -132,6 +137,7 @@ CHANNEL_LAYERS = {
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://localhost:3000",
 ]
 CORS_ALLOW_HEADERS = [
     'content-type',

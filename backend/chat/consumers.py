@@ -21,6 +21,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if "=" in param
         ).get("username", "Anonymous")
 
+        if not await self._user_exists(self.username):
+            await self.close()
+            return
+
         user = await self._get_or_create_user(self.username)
 
         await self.channel_layer.group_add(
@@ -159,7 +163,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # DATABASE HELPERS
     # =============================================
 
-    @sync_to_async
+    @database_sync_to_async
+    def _user_exists(self, username):
+        return User.objects.filter(username=username, is_active=True).exists()
+
+    @database_sync_to_async
     def _get_or_create_user(self, username):
         user, _ = User.objects.get_or_create(
             username=username,

@@ -30,7 +30,7 @@ Only code, no explanation.
 
 5.1 -- showing technologies that the message is encripted (done) 
 op(show it withou ts )
-6 --- adding emojies reaction for the chat messages 
+6 --- adding emojies reaction for the chat messages (done)
 
 5. User approval system (admin must accept new users)
 text
