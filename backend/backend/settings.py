@@ -31,8 +31,6 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
-    'colorfield',
-    'admin_interface',
     'corsheaders',
     'daphne',
     'channels',
@@ -124,7 +122,6 @@ USE_TZ = True
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 ASGI_APPLICATION = 'backend.asgi.application'
 

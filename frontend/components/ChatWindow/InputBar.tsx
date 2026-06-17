@@ -26,6 +26,7 @@ export function InputBar({ isConnected, onSend }: Props) {
         placeholder="Type a message..."
         className={styles.messageInput}
         disabled={!isConnected}
+        
       />
       <button onClick={handleSend} disabled={!isConnected} className={styles.sendBtn}>
         Send

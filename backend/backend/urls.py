@@ -17,8 +17,6 @@ Including another URLconf
 # backend/urls.py
 from django.contrib import admin
 from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
 from chat import views
 
 urlpatterns = [
@@ -30,4 +28,4 @@ urlpatterns = [
     path('api/toggle_reaction/', views.toggle_reaction, name='toggle_reaction'),
     path('api/request_join/', views.request_join, name='request_join'),
     path('api/check_approval/', views.check_approval, name='check_approval'),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]
