@@ -1,5 +1,7 @@
+'use client';
+
 import { useState, useEffect, useRef } from 'react';
-import styles from './ChatWindow.module.css';
+import loginStyles from '@/components/Login/Login.module.css';
 
 interface Props {
   onUsernameSet: (username: string) => void;
@@ -58,15 +60,12 @@ export function UsernameModal({ onUsernameSet }: Props) {
     setErrorMsg('');
 
     try {
-      console.log('[UsernameModal] Sending request_join for:', name);
       const res = await fetch('http://localhost:8000/api/request_join/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: name }),
       });
-      console.log('[UsernameModal] Response status:', res.status);
       const data = await res.json();
-      console.log('[UsernameModal] Response data:', data);
 
       if (data.status === 'pending') {
         setStatus('pending');
@@ -83,42 +82,57 @@ export function UsernameModal({ onUsernameSet }: Props) {
   };
 
   return (
-    <div className={styles.usernameOverlay}>
-      <div className={styles.usernameCard}>
-        <h1>Local Chat</h1>
+    <div className={loginStyles.loginPage}>
+      <div className={loginStyles.loginCard}>
+        <div className={loginStyles.loginLeft}>
+          <h1 className={loginStyles.loginTitle}>Local Chat</h1>
+          <form className={loginStyles.loginForm} onSubmit={handleSubmit}>
+            <div className={loginStyles.loginFormInner}>
+              <label className={loginStyles.loginLabel} htmlFor="username">Username</label>
+              <input
+                id="username"
+                type="text"
+                className={loginStyles.loginInput}
+                placeholder="Type your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoFocus
+                disabled={status === 'submitting'}
+              />
 
-        {status === 'pending' && (
-          <div>
-            <p>Your request is pending admin approval.</p>
-            <p className={styles.pendingDots}>Waiting for approval...</p>
-          </div>
-        )}
+              {errorMsg && (
+                <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '12px' }}>{errorMsg}</p>
+              )}
 
-        {status === 'approved' && (
-          <p>Approved! Joining chat...</p>
-        )}
+              {status === 'pending' && (
+                <p style={{ color: '#C9956B', fontSize: '14px', marginBottom: '12px' }}>
+                  Waiting for admin approval...
+                </p>
+              )}
 
-        {(status === 'idle' || status === 'submitting') && (
-          <form onSubmit={handleSubmit}>
-            <p>Enter your username to request access</p>
-            {errorMsg && <p className={styles.errorText}>{errorMsg}</p>}
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
-              autoFocus
-              disabled={status === 'submitting'}
-            />
-            <button
-              type="submit"
-              className={styles.primaryBtn}
-              disabled={status === 'submitting'}
-            >
-              {status === 'submitting' ? 'Submitting...' : 'Request Access'}
-            </button>
+              {status === 'approved' && (
+                <p style={{ color: '#22c55e', fontSize: '14px', marginBottom: '12px' }}>
+                  Approved! Joining chat...
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className={loginStyles.loginBtn}
+                disabled={status === 'submitting'}
+              >
+                {status === 'submitting' ? 'Submitting...' : 'Request Access'}
+              </button>
+            </div>
           </form>
-        )}
+        </div>
+        <div className={loginStyles.loginRight}>
+          <img
+            src="/login-image.jpg"
+            alt="Cozy desk setup"
+            className={loginStyles.loginImage}
+          />
+        </div>
       </div>
     </div>
   );

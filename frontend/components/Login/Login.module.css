@@ -1,0 +1,232 @@
+:root {
+  --login-bg: #F5EDE3;
+  --login-card-bg: #FFFFFF;
+  --login-title: #3C2415;
+  --login-label: #3C2415;
+  --login-input-border: #D9D0C7;
+  --login-input-bg: #FFFFFF;
+  --login-btn: #C9956B;
+  --login-btn-hover: #B8854F;
+  --login-checkbox: #C9956B;
+  --login-google-bg: #E8DCD0;
+  --login-google-hover: #DDD0C2;
+  --login-text: #3C2415;
+  --login-text-secondary: #8C7B6B;
+  --login-divider: #D9D0C7;
+}
+
+.loginPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--login-bg);
+  padding: 24px;
+}
+
+.loginCard {
+  display: flex;
+  width: 100%;
+  max-width: 960px;
+  min-height: 580px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+}
+
+.loginLeft {
+  flex: 1;
+  background: var(--login-card-bg);
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+}
+
+.loginTitle {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--login-title);
+  margin-bottom: 32px;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.loginFormInner {
+  border: 1px solid var(--login-input-border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.loginLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--login-label);
+  margin-bottom: 6px;
+}
+
+.loginInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--login-input-border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--login-text);
+  background: var(--login-input-bg);
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 16px;
+}
+
+.loginInput::placeholder {
+  color: #B0A89E;
+}
+
+.loginInput:focus {
+  border-color: var(--login-btn);
+}
+
+.loginOptions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.loginRemember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--login-text);
+  cursor: pointer;
+  position: relative;
+}
+
+.loginCheckbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.loginCheckboxCustom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--login-input-border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.loginCheckbox:checked + .loginCheckboxCustom {
+  background-color: var(--login-checkbox);
+  border-color: var(--login-checkbox);
+}
+
+.loginCheckbox:checked + .loginCheckboxCustom::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+
+.loginForgot {
+  font-size: 14px;
+  color: var(--login-text-secondary);
+  text-decoration: none;
+}
+
+.loginForgot:hover {
+  color: var(--login-btn);
+}
+
+.loginBtn {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--login-btn);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.loginBtn:hover {
+  background-color: var(--login-btn-hover);
+}
+
+.loginDivider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 24px 0;
+  color: var(--login-text-secondary);
+  font-size: 14px;
+}
+
+.loginDivider::before,
+.loginDivider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--login-divider);
+}
+
+.loginDivider span {
+  padding: 0 16px;
+}
+
+.loginBtnGoogle {
+  width: 100%;
+  padding: 14px;
+  background-color: var(--login-google-bg);
+  color: var(--login-text);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.loginBtnGoogle:hover {
+  background-color: var(--login-google-hover);
+}
+
+.loginRight {
+  flex: 1;
+  overflow: hidden;
+}
+
+.loginImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .loginCard {
+    flex-direction: column;
+    max-width: 440px;
+  }
+
+  .loginRight {
+    display: none;
+  }
+
+  .loginLeft {
+    padding: 40px 32px;
+  }
+}
