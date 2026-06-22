@@ -73,7 +73,7 @@
 }
 
 .themeBtn:hover {
-  background-color: rgba(0, 0, 0, 0.06);
+  background-color: var(--bg-sidebar);
 }
 
 .messageFeed {
@@ -93,11 +93,12 @@
 
 .onlinePanel {
   width: 220px;
-  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
   background-color: var(--bg-surface);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  order: -1;
 }
 
 .onlineHeader {
@@ -216,7 +217,7 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* ===== Input Bar (compact) ===== */
+/* ===== Input Bar ===== */
 .inputBar {
   display: flex;
   align-items: center;
@@ -230,7 +231,7 @@
 .inputBar .messageInput {
   flex: 1;
   padding: 10px 16px;
-  border-radius: 24px; /* pill shape */
+  border-radius: 24px;
   border: 1px solid var(--border-color);
   background: var(--bg-canvas);
   color: var(--text-primary);
@@ -254,7 +255,7 @@
 .inputBar .sendBtn {
   padding: 10px 20px;
   border: none;
-  border-radius: 24px; /* pill shape */
+  border-radius: 24px;
   background-color: var(--color-primary-500);
   color: #ffffff;
   font-size: 13px;
@@ -286,7 +287,7 @@
   margin-top: 4px;
 }
 
-/* ===== Responsive: smaller on mobile ===== */
+/* ===== Responsive ===== */
 @media (max-width: 600px) {
   .inputBar {
     padding: 8px 12px;
@@ -304,20 +305,14 @@
   }
 }
 
-.connectionError {
-  color: var(--color-accent-danger);
-  font-size: 13px;
-  text-align: center;
-  margin-top: 8px;
-}
-
+/* ===== Username Modal ===== */
 .usernameOverlay {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-primary-500), #7c3aed);
+  background: var(--bg-canvas);
 }
 
 .usernameCard {
@@ -402,12 +397,13 @@
   50% { opacity: 0.5; }
 }
 
+/* ===== Login overlay (legacy) ===== */
 .loginOverlay {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-primary-500), #7c3aed);
+  background: var(--bg-canvas);
 }
 
 .loginCard {
@@ -472,8 +468,7 @@
   background-color: var(--color-primary-600);
 }
 
-
-/* Reaction styles */
+/* ===== Reaction styles ===== */
 .reactionContainer {
   position: relative;
   display: inline-block;

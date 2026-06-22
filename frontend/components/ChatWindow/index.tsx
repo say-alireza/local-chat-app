@@ -104,13 +104,13 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
       </header>
 
       <main className={styles.mainContent}>
+        <OnlinePanel users={onlineMembers} />
         <MessageFeed
           messages={messages}
           username={username}
           onMessageVisible={handleMessageVisible}
           onReaction={handleReaction}
         />
-        <OnlinePanel users={onlineMembers} />
       </main>
 
       <InputBar isConnected={isConnected} onSend={sendMessage} />
