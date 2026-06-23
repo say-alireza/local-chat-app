@@ -102,12 +102,19 @@ npm install
 ## Running the Application
 
 Start the backend:
-
+run using ssl (not active currently)
 ```bash
 cd backend
+.\venv\Scripts\activate
 daphne -b localhost -p 8000 backend.asgi:application
 ```
 
+run using websocket(works fine)
+```
+cd backend
+.\venv\Scripts\activate
+python manage.py runserver
+```
 Start the frontend:
 
 ```bash
