@@ -70,7 +70,7 @@ export default function Login() {
         </div>
         <div className={styles.loginRight}>
           <img
-            src="/login-image.jpg"
+            src="/login-image.png"
             alt="Cozy desk setup"
             className={styles.loginImage}
           />

@@ -128,7 +128,7 @@ export function UsernameModal({ onUsernameSet }: Props) {
         </div>
         <div className={loginStyles.loginRight}>
           <img
-            src="/login-image.jpg"
+            src=" /login-image.png"
             alt="Cozy desk setup"
             className={loginStyles.loginImage}
           />

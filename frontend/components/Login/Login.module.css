@@ -59,6 +59,7 @@
   border: 1px solid var(--login-input-border);
   border-radius: 12px;
   padding: 24px;
+  margin-top: 5rem;
 }
 
 .loginLabel {
