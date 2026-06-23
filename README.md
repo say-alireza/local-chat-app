@@ -3,8 +3,12 @@
 A real-time chat application that runs entirely on your local network using WebSockets. No internet connection required.
 
 **Tech Stack:** Django Channels, Next.js, TypeScript, CSS Modules
+## Login Page
+![Login Page](frontend/public/image.png)
 
-<img width="1920" height="1080" alt="Screenshot 2026-06-06 000952" src="https://github.com/user-attachments/assets/518b0246-5352-485f-b124-58dd69ca5326" />
+## Chat View
+![Chat View](frontend/public/chat-view.png)
+<!-- <img width="1920" height="1080" alt="Screenshot 2026-06-06 000952" src="https://github.com/user-attachments/assets/518b0246-5352-485f-b124-58dd69ca5326" /> -->
 
 ## Features
 
