@@ -105,15 +105,16 @@ export default function ChatWindow({ theme, onToggleTheme }: ChatWindowProps) {
 
       <main className={styles.mainContent}>
         <OnlinePanel users={onlineMembers} />
-        <MessageFeed
-          messages={messages}
-          username={username}
-          onMessageVisible={handleMessageVisible}
-          onReaction={handleReaction}
-        />
+        <div className={styles.chatColumn}>
+          <MessageFeed
+            messages={messages}
+            username={username}
+            onMessageVisible={handleMessageVisible}
+            onReaction={handleReaction}
+          />
+          <InputBar isConnected={isConnected} onSend={sendMessage} />
+        </div>
       </main>
-
-      <InputBar isConnected={isConnected} onSend={sendMessage} />
     </div>
   );
 }
