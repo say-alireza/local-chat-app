@@ -1,19 +1,20 @@
 # Local Chat Application
 
-A real-time chat application that runs entirely on your local network using WebSockets. No internet connection required.
+A real-time chat application that runs entirely on your local network using WebSockets. No internet connection required. Built for private, secure communication within a local network — ideal for teams, labs, or home setups.
 
 **Tech Stack:** Django Channels, Next.js, TypeScript, CSS Modules
+
 ## Login Page
+
 ![Login Page](frontend/public/image.png)
 
 ## Chat View
+
 ![Chat View](frontend/public/chat-view.png)
-<!-- <img width="1920" height="1080" alt="Screenshot 2026-06-06 000952" src="https://github.com/user-attachments/assets/518b0246-5352-485f-b124-58dd69ca5326" /> -->
 
 ## Features
 
 - Real-time messaging via WebSockets
-- SSL encrypted connection (self-signed cert)
 - Admin approval system for new users
 - Message reactions with emoji picker
 - Read/seen status indicators
@@ -21,22 +22,24 @@ A real-time chat application that runs entirely on your local network using WebS
 - Light/dark theme toggle
 - Django admin interface with admin-panel UI
 
+> **Note:** SSL encryption is temporarily deactivated due to a known issue. The application currently runs on plain HTTP/WS. SSL support will be restored in a future update.
+
 ## Overview
 
 - **Backend:** Django + Channels (ASGI) via Daphne
 - **Frontend:** Next.js 16 (React 19, TypeScript, CSS Modules)
-- **Communication:** WebSockets (WSS)
+- **Communication:** WebSockets (WS)
 - **Database:** SQLite
 - **Average latency on localhost:** 15-20ms
 
 ## How It Works
 
-1. User opens `https://localhost:3000`
+1. User opens `http://localhost:3000`
 2. UsernameModal prompts for a username
 3. Username is sent to `/api/request_join/` and stored as a `PendingUser`
 4. Admin approves the user via Django admin (`/admin/chat/pendinguser/`)
 5. Frontend polls `/api/check_approval/` every 3s
-6. On approval, a WebSocket connection is established to `wss://localhost:8000/ws/chat/`
+6. On approval, a WebSocket connection is established to `ws://localhost:8000/ws/chat/`
 7. Messages are broadcast to all connected clients in real time
 
 ## Network Flow
@@ -98,68 +101,12 @@ npm install
 
 ## Running the Application
 
-### With SSL (Recommended)
-
-The backend requires SSL certificates. Generate them on first setup:
+Start the backend:
 
 ```bash
 cd backend
-python -c "
-from cryptography import x509
-from cryptography.x509.oid import NameOID
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
-import datetime, pathlib
-key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-subject = issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'localhost')])
-cert = (
-    x509.CertificateBuilder()
-    .subject_name(subject).issuer_name(issuer)
-    .public_key(key.public_key())
-    .serial_number(x509.random_serial_number())
-    .not_valid_before(datetime.datetime.now(datetime.UTC))
-    .not_valid_after(datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=365))
-    .add_extension(x509.SubjectAlternativeName([x509.DNSName('localhost')]), critical=False)
-    .sign(key, hashes.SHA256())
-)
-pathlib.Path('localhost.pem').write_bytes(cert.public_bytes(serialization.Encoding.PEM))
-pathlib.Path('localhost.key').write_bytes(key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.TraditionalOpenSSL, serialization.NoEncryption()))
-print('Certificates generated')
-"
-```
-
-Start the backend with SSL:
-
-```bash
-daphne -e ssl:8000:privateKey=localhost.key:certKey=localhost.pem backend.asgi:application
-```
-
-Start the frontend:
-
-```bash
-cd frontend
-npm run dev
-```
-
-- Frontend: `https://localhost:3000`
-- Backend API: `https://localhost:8000`
-- Admin panel: `https://localhost:8000/admin/`
-
-> **Note:** On first visit your browser will warn about the self-signed certificate. Click **Advanced** → **Proceed to localhost**.
-
-### Without SSL (Development)
-
-Start the backend on plain HTTP:
-
-```bash
 daphne -b localhost -p 8000 backend.asgi:application
 ```
-
-Then update the frontend URLs from `https://` to `http://` and from `wss://` to `ws://` in:
-
-- `frontend/hooks/use-websocket.ts` — change `wss://` to `ws://`
-- `frontend/components/ChatWindow/UsernameModal.tsx` — change `https://` to `http://`
-- `frontend/utils/api.ts` — change `https://` to `http://`
 
 Start the frontend:
 
@@ -170,6 +117,7 @@ npm run dev
 
 - Frontend: `http://localhost:3000`
 - Backend API: `http://localhost:8000`
+- Admin panel: `http://localhost:8000/admin/`
 
 ## Admin Approval Workflow
 
@@ -197,8 +145,6 @@ local-chat-app/
 │   │   └── migrations/
 │   ├── manage.py
 │   ├── requirements.txt
-│   ├── localhost.pem          # SSL certificate (generated)
-│   ├── localhost.key          # SSL private key (generated)
 │   └── db.sqlite3
 ├── frontend/
 │   ├── app/
@@ -245,3 +191,20 @@ local-chat-app/
 | `seen_event` | Server -> Client | Read receipt update |
 | `reaction_update` | Server -> Client | Reaction toggle broadcast |
 | `reaction` | Client -> Server | Send a reaction |
+
+## Contributing
+
+Contributions are welcome! Here are some features that could be added:
+
+- **File & Image Sharing** — Allow users to send images, files, and media in chat
+- **Private Messaging** — Direct messages between two users
+- **Chat Rooms** — Support for multiple chat rooms/channels
+- **Message Editing & Deletion** — Edit or delete sent messages
+- **Typing Indicators** — Show when another user is typing
+- **Message Search** — Search through chat history
+- **User Avatars** — Profile pictures for users
+- **Notifications** — Desktop notifications for new messages
+- **Message Pinning** — Pin important messages to the top
+- **User Roles & Permissions** — Role-based access (admin, moderator, member)
+- **Chat Export** — Export chat history as text or JSON
+- **Restore SSL Encryption** — Re-enable WSS with proper certificate handling
